@@ -1,0 +1,4 @@
+To run this, either:
+
+1 - Install the Rust toolchain and run `cargo build --release` followed by `./target/release/word_chain STARTWORD ENDWORD`, or
+2 - Use docker and run `docker build . -t word-chain` followed by `docker run -it word-chain STARTWORD ENDWORD`

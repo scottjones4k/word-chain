@@ -25,13 +25,21 @@ pub fn score(value: &str, target: &str) -> usize{
   source_chars.zip(destination_chars).filter(|(a,b)| a == b).count()
 }
 
-pub fn load_dictionary() -> Vec<String> {
+pub fn validate_input(start: &str, end: &str) {
+  if start.chars().count() != end.chars().count() {
+    panic!("{} and {} are not the same length", start, end);
+  }
+}
+
+pub fn load_dictionary(size: usize) -> Vec<String> {
     let mut dict = Vec::new();
     if let Ok(lines) = read_lines("./dictionary.txt") {
         // Consumes the iterator, returns an (Optional) String
         for line in lines {
             if let Ok(word) = line {
+              if word.chars().count() == size {
                 dict.push(word);
+              }
             }
         }
     } else {
@@ -66,4 +74,27 @@ fn get_random_char() -> char {
   let rand = rng.gen_range(0..CHARSET.chars().count());
   let character = CHARSET.chars().nth(rand).unwrap().to_owned();
   character
+}
+
+pub fn shorten_chain(chain: Vec<String>, start_index: usize) -> Vec<String> {
+  let chain_length = chain.len();
+  if start_index + 1 == chain_length {
+    return chain
+  }
+  let mut chain_reversed = chain.clone();
+  let target = chain[1].chars().count() - 1;
+  chain_reversed.reverse();
+  for index in start_index..chain_length {
+    let word = &chain[index];
+      for rev_index in 0..index-3 {
+      let rev = &chain_reversed[rev_index];
+      if score(word, &rev) == target {
+        let upper_index = chain_length - rev_index - 1;
+        let mut items = chain.clone();
+        items.drain(index+1..upper_index);
+        return shorten_chain(items, index + 1)
+      }
+    }
+  }
+  chain
 }
